@@ -1,11 +1,12 @@
 import sqlite3
+from app.conn_to_db import create_connection
 
 
 class Books:
     def __init__(self):
-        pass
+        self.db_file = 'library.db'
 
-    def create_table(self, conn):
+    def create_table(self):
         create_books_sql = """
         -- books table
         CREATE TABLE IF NOT EXISTS books (
@@ -17,50 +18,37 @@ class Books:
             Done TEXT
         );
         """
+        conn = create_connection(self.db_file)
         cursor = conn.cursor()
         cursor.execute(create_books_sql)
 
-    def create_connection(self, db_file):
-        """ create a database connection to the SQLite database
-           specified by db_file
-       :param db_file: database file
-       :return: Connection object or None
-       """
-        conn = None
-        try:
-            conn = sqlite3.connect(db_file)
-            return conn
-        except sqlite3.Error as e:
-            print(e)
-        return conn
-
-    def add_book(self, conn, book):
+    def add_book(self, book):
         """
        Add a book into the books table
-       :param conn:
        :param book:
        :return: book id
        """
         sql = '''INSERT INTO books(Title, Author, Year, Genre, Done)
                  VALUES(?,?,?,?,?)'''
+        conn = create_connection(self.db_file)
         cur = conn.cursor()
         cur.execute(sql, book)
         conn.commit()
         return cur.lastrowid
 
-    def select_all(self, conn, table):
+    def select_all(self, table):
         """
        Query all rows in the table
-       :param conn: the Connection object
        :return:
        """
+        conn = create_connection(self.db_file)
         cur = conn.cursor()
         cur.execute(f"SELECT * FROM {table}")
         rows = cur.fetchall()
 
         return rows
 
-    def select_book(self, conn, table, **query):
+    def select_book(self, table, **query):
         """
        Query tasks from table with data from **query dict
        :param conn: the Connection object
@@ -68,6 +56,7 @@ class Books:
        :param query: dict of attributes and values
        :return:
        """
+        conn = create_connection(self.db_file)
         cur = conn.cursor()
         qs = []
         values = ()
@@ -79,31 +68,31 @@ class Books:
         rows = cur.fetchall()
         return rows
 
-    def update(self, conn, table, id, new_data):
+    def update(self, table, id, data):
         """
         update status, begin_date, and end date of a task
-        :param conn:
+        :param data: updated data
         :param table: table name
         :param id: row id
         :return:
         """
-        parameters = [f"{k} = ?" for k in new_data]
+        parameters = [f"{k} = ?" for k in data]
         parameters = ", ".join(parameters)
-        values = tuple(v for v in new_data.values())
+        values = tuple(v for v in data.values())
         values += (id,)
 
         sql = f''' UPDATE {table}
                  SET {parameters}
                  WHERE id = ?'''
         try:
+            conn = create_connection(self.db_file)
             cur = conn.cursor()
             cur.execute(sql, values)
             conn.commit()
-            print("OK")
         except sqlite3.OperationalError as e:
             print(e)
 
-    def delete_book(self, conn, table, **kwargs):
+    def delete_book(self, table, **kwargs):
         """
        Delete from table where attributes from
        :param conn:  Connection to the SQLite database
@@ -119,10 +108,10 @@ class Books:
         q = " AND ".join(qs)
 
         sql = f'DELETE FROM {table} WHERE {q}'
+        conn = create_connection(self.db_file)
         cur = conn.cursor()
         cur.execute(sql, values)
         conn.commit()
-        print("Deleted")
 
 
 books = Books()
