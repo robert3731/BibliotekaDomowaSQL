@@ -1,7 +1,7 @@
 from flask import request, render_template, redirect, url_for
+from main import app
 from app.forms import BooksForm
 from app.models import books
-from main import app
 
 
 @app.route("/books/", methods=["GET", "POST"])
@@ -21,7 +21,7 @@ def books_list():
 @app.route("/books/<int:book_id>/", methods=["GET", "POST"])
 def book_details(book_id):
     book = books.select_book('books', id=book_id)
-    table_headers = ['Title', 'Author', 'Year', 'Genre', 'Done']
+    table_headers = ['title', 'author', 'year', 'genre', 'done']
     book_dict = dict(zip(table_headers, book[0][1:]))
     form = BooksForm(data=book_dict)
 

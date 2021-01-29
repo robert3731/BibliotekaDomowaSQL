@@ -11,11 +11,11 @@ class Books:
         -- books table
         CREATE TABLE IF NOT EXISTS books (
             id integer PRIMARY KEY,
-            Title text NOT NULL,
-            Author text,
-            Year text,
-            Genre text,
-            Done TEXT
+            title text NOT NULL,
+            author text,
+            year text,
+            genre text,
+            done TEXT
         );
         """
         conn = create_connection(self.db_file)
@@ -28,7 +28,7 @@ class Books:
        :param book:
        :return: book id
        """
-        sql = '''INSERT INTO books(Title, Author, Year, Genre, Done)
+        sql = '''INSERT INTO books(title, author, year, genre, done)
                  VALUES(?,?,?,?,?)'''
         conn = create_connection(self.db_file)
         cur = conn.cursor()
@@ -51,7 +51,6 @@ class Books:
     def select_book(self, table, **query):
         """
        Query tasks from table with data from **query dict
-       :param conn: the Connection object
        :param table: table name
        :param query: dict of attributes and values
        :return:
@@ -95,7 +94,6 @@ class Books:
     def delete_book(self, table, **kwargs):
         """
        Delete from table where attributes from
-       :param conn:  Connection to the SQLite database
        :param table: table name
        :param kwargs: dict of attributes and values
        :return:
