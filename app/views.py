@@ -6,6 +6,7 @@ from app.models import books
 
 @app.route("/books/", methods=["GET", "POST"])
 def books_list():
+    books.create_table()
     form = BooksForm()
     book_list = books.select_all('books')
     error = ""
